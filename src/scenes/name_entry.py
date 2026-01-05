@@ -19,6 +19,11 @@ class NameEntryScene(Scene):
     """3-letter name entry for high scores."""
 
     def __init__(self, app: "App") -> None:  # type: ignore[name-defined]
+        """Initialize the name entry scene.
+
+        Args:
+            app: The main application instance.
+        """
         super().__init__(app)
         self.mode: GameMode = GameMode.CLASSIC
         self.score: int = 0
@@ -28,13 +33,23 @@ class NameEntryScene(Scene):
         self.show_cursor = True
 
     def set_data(self, mode: GameMode, score: int) -> None:
-        """Set the mode and score for this entry."""
+        """Set the mode and score for this entry.
+
+        Args:
+            mode: The game mode that was played.
+            score: The score achieved by the player.
+        """
         self.mode = mode
         self.score = score
         self.chars = [0, 0, 0]
         self.cursor_pos = 0
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle input events for name entry.
+
+        Args:
+            event: The pygame event to process.
+        """
         if event.type != pygame.KEYDOWN:
             return
         
@@ -57,7 +72,11 @@ class NameEntryScene(Scene):
             self.app.change_scene("main_menu")
 
     def _save_and_continue(self) -> None:
-        """Save the high score and continue."""
+        """Save the high score and transition to highscores scene.
+
+        Constructs the player name from selected characters, adds the score
+        to the highscores list, persists it to disk, and navigates away.
+        """
         name = "".join(NAME_CHARSET[i] for i in self.chars)
         self.app.highscores.add_score(self.mode, name, self.score)
         save_highscores(self.app.highscores)
@@ -65,6 +84,11 @@ class NameEntryScene(Scene):
         self.app.change_scene("highscores")
 
     def update(self, dt: float) -> None:
+        """Update the scene state.
+
+        Args:
+            dt: Delta time in seconds since last update.
+        """
         # Cursor blink
         self.blink_timer += dt
         if self.blink_timer >= 0.3:
@@ -72,6 +96,11 @@ class NameEntryScene(Scene):
             self.show_cursor = not self.show_cursor
 
     def render(self, surface: pygame.Surface) -> None:
+        """Render the name entry interface.
+
+        Args:
+            surface: The pygame surface to render onto.
+        """
         surface.fill(COLOR_BG)
         
         # Title

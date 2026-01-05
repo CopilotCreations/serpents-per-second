@@ -13,13 +13,24 @@ class HighScoresScene(Scene):
     MODES = [GameMode.CLASSIC, GameMode.BOXED, GameMode.MAZE, GameMode.TIME_ATTACK]
 
     def __init__(self, app: "App") -> None:  # type: ignore[name-defined]
+        """Initialize the high scores scene.
+
+        Args:
+            app: The main application instance.
+        """
         super().__init__(app)
         self.mode_index = 0
 
     def on_enter(self) -> None:
+        """Reset the mode index when entering the scene."""
         self.mode_index = 0
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input for navigation and mode switching.
+
+        Args:
+            event: The pygame event to process.
+        """
         if event.type != pygame.KEYDOWN:
             return
         
@@ -34,9 +45,19 @@ class HighScoresScene(Scene):
             self.app.change_scene("main_menu")
 
     def update(self, dt: float) -> None:
+        """Update the scene state.
+
+        Args:
+            dt: Delta time since last update in seconds.
+        """
         pass
 
     def render(self, surface: pygame.Surface) -> None:
+        """Render the high scores display.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         surface.fill(COLOR_BG)
         
         mode = self.MODES[self.mode_index]

@@ -11,12 +11,24 @@ class SpriteAtlas:
     """Loads and provides access to sprite sheet regions."""
 
     def __init__(self, assets_path: Path) -> None:
+        """Initialize the sprite atlas.
+
+        Args:
+            assets_path: Path to the assets directory containing sprite sheets.
+        """
         self.assets_path = assets_path
         self.sheets: dict[str, pygame.Surface] = {}
         self.sprites: dict[str, pygame.Surface] = {}
 
     def load(self) -> bool:
-        """Load all sprite sheets. Returns True if required assets loaded."""
+        """Load all sprite sheets from the assets directory.
+
+        Loads required and optional sprite sheets. Required sheets must exist
+        for the function to succeed.
+
+        Returns:
+            True if all required assets were loaded successfully, False otherwise.
+        """
         logger = get_logger()
         sprites_path = self.assets_path / "sprites"
         
@@ -39,7 +51,11 @@ class SpriteAtlas:
         return True
 
     def _extract_sprites(self) -> None:
-        """Extract individual sprites from sheets."""
+        """Extract individual sprites from loaded sprite sheets.
+
+        Processes snake, food, and tile sheets to create individual named
+        sprites that can be accessed via get_sprite().
+        """
         # Snake sprites (128x64, 8x4 tiles)
         if "snake.png" in self.sheets:
             snake_sheet = self.sheets["snake.png"]
@@ -74,26 +90,67 @@ class SpriteAtlas:
     def _extract_tile(
         self, sheet: pygame.Surface, tile_x: int, tile_y: int
     ) -> pygame.Surface:
-        """Extract a single tile from a sheet."""
+        """Extract a single tile from a sprite sheet.
+
+        Args:
+            sheet: The source sprite sheet surface.
+            tile_x: The x-coordinate of the tile in tile units.
+            tile_y: The y-coordinate of the tile in tile units.
+
+        Returns:
+            A new surface containing the extracted tile.
+        """
         rect = pygame.Rect(tile_x * TILE_SIZE, tile_y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
         return sheet.subsurface(rect).copy()
 
     def get_sprite(self, name: str) -> pygame.Surface | None:
-        """Get a sprite by name."""
+        """Get a sprite by its name.
+
+        Args:
+            name: The name of the sprite to retrieve.
+
+        Returns:
+            The sprite surface if found, None otherwise.
+        """
         return self.sprites.get(name)
 
     def get_head_sprite(self, direction: Direction) -> pygame.Surface | None:
-        """Get head sprite for a direction."""
+        """Get the snake head sprite for a given direction.
+
+        Args:
+            direction: The direction the head is facing.
+
+        Returns:
+            The head sprite surface if found, None otherwise.
+        """
         return self.get_sprite(f"head_{direction.name.lower()}")
 
     def get_tail_sprite(self, direction: Direction) -> pygame.Surface | None:
-        """Get tail sprite for a direction."""
+        """Get the snake tail sprite for a given direction.
+
+        Args:
+            direction: The direction the tail is pointing.
+
+        Returns:
+            The tail sprite surface if found, None otherwise.
+        """
         return self.get_sprite(f"tail_{direction.name.lower()}")
 
     def get_body_sprite(
         self, incoming: Direction | None, outgoing: Direction | None
     ) -> pygame.Surface | None:
-        """Get body sprite based on incoming/outgoing directions."""
+        """Get the appropriate body sprite based on segment directions.
+
+        Determines whether to use a straight or turn sprite based on the
+        incoming and outgoing directions of a body segment.
+
+        Args:
+            incoming: The direction from which the segment is entered.
+            outgoing: The direction in which the segment exits.
+
+        Returns:
+            The appropriate body sprite surface, or horizontal body as fallback.
+        """
         if incoming is None or outgoing is None:
             return self.get_sprite("body_horizontal")
         
@@ -117,9 +174,20 @@ class SpriteAtlas:
         return self.get_sprite("body_horizontal")
 
     def get_food_sprite(self, frame: int) -> pygame.Surface | None:
-        """Get food sprite for animation frame."""
+        """Get a food sprite for the specified animation frame.
+
+        Args:
+            frame: The animation frame index (0 or 1).
+
+        Returns:
+            The food sprite surface if found, None otherwise.
+        """
         return self.get_sprite(f"food_{frame}")
 
     def get_wall_sprite(self) -> pygame.Surface | None:
-        """Get wall tile sprite."""
+        """Get the wall tile sprite.
+
+        Returns:
+            The wall sprite surface if found, None otherwise.
+        """
         return self.get_sprite("wall")

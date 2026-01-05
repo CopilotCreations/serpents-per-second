@@ -19,13 +19,24 @@ class ModeSelectScene(Scene):
     ]
 
     def __init__(self, app: "App") -> None:  # type: ignore[name-defined]
+        """Initialize the mode selection scene.
+
+        Args:
+            app: The main application instance.
+        """
         super().__init__(app)
         self.selected_index = 0
 
     def on_enter(self) -> None:
+        """Reset selection when entering the scene."""
         self.selected_index = 0
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input for menu navigation.
+
+        Args:
+            event: The pygame event to process.
+        """
         if event.type != pygame.KEYDOWN:
             return
         
@@ -43,6 +54,11 @@ class ModeSelectScene(Scene):
             self.app.change_scene("main_menu")
 
     def _select_item(self) -> None:
+        """Handle selection of the current menu item.
+
+        Navigates back to main menu if 'BACK' is selected,
+        otherwise starts the game with the selected mode.
+        """
         _, mode = self.MENU_ITEMS[self.selected_index]
         if mode is None:
             self.app.change_scene("main_menu")
@@ -50,9 +66,19 @@ class ModeSelectScene(Scene):
             self.app.start_game(mode)
 
     def update(self, dt: float) -> None:
+        """Update the scene state.
+
+        Args:
+            dt: Delta time in seconds since the last frame.
+        """
         pass
 
     def render(self, surface: pygame.Surface) -> None:
+        """Render the mode selection menu.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         surface.fill(COLOR_BG)
         
         # Title

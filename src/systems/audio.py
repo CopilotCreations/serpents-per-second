@@ -10,6 +10,11 @@ class AudioSystem:
     """Manages music and sound effects playback."""
 
     def __init__(self, assets_path: Path) -> None:
+        """Initialize the AudioSystem with default settings.
+
+        Args:
+            assets_path: Path to the assets directory containing audio files.
+        """
         self.assets_path = assets_path
         self.music_volume = 0.7
         self.sfx_volume = 0.8
@@ -18,7 +23,14 @@ class AudioSystem:
         self._initialized = False
 
     def init(self) -> bool:
-        """Initialize the audio system."""
+        """Initialize the pygame audio mixer.
+
+        Configures the mixer with 44100 Hz frequency, 16-bit signed audio,
+        stereo channels, and a 512 sample buffer.
+
+        Returns:
+            True if initialization succeeded, False otherwise.
+        """
         logger = get_logger()
         try:
             pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
@@ -30,7 +42,15 @@ class AudioSystem:
             return False
 
     def load_sounds(self) -> bool:
-        """Load all sound effects."""
+        """Load all sound effect files from the assets directory.
+
+        Loads WAV files for menu navigation, eating, turning, death,
+        and time-up sound effects.
+
+        Returns:
+            True if the audio system was initialized and loading was
+            attempted, False if the system was not initialized.
+        """
         if not self._initialized:
             return False
         
@@ -56,7 +76,14 @@ class AudioSystem:
         return True
 
     def play_music(self, track: str) -> None:
-        """Play a music track (menu or game)."""
+        """Play a music track in an infinite loop.
+
+        If the requested track is already playing, this method does nothing.
+
+        Args:
+            track: Name of the track to play (e.g., "menu" or "game").
+                The corresponding file should be at assets/audio/music_{track}.ogg.
+        """
         if not self._initialized:
             return
         
@@ -75,13 +102,21 @@ class AudioSystem:
             logger.warning(f"Failed to play music {track}: {e}")
 
     def stop_music(self) -> None:
-        """Stop the current music."""
+        """Stop the currently playing music track.
+
+        Resets the current_music state to None.
+        """
         if self._initialized:
             pygame.mixer.music.stop()
             self.current_music = None
 
     def play_sound(self, name: str) -> None:
-        """Play a sound effect."""
+        """Play a sound effect by name.
+
+        Args:
+            name: The name of the sound effect to play (e.g., "sfx_eat").
+                Must have been previously loaded via load_sounds().
+        """
         if not self._initialized:
             return
         
@@ -91,17 +126,31 @@ class AudioSystem:
             sound.play()
 
     def set_music_volume(self, volume: float) -> None:
-        """Set music volume (0.0 to 1.0)."""
+        """Set the music playback volume.
+
+        Args:
+            volume: Volume level from 0.0 (silent) to 1.0 (full volume).
+                Values outside this range are clamped.
+        """
         self.music_volume = max(0.0, min(1.0, volume))
         if self._initialized:
             pygame.mixer.music.set_volume(self.music_volume)
 
     def set_sfx_volume(self, volume: float) -> None:
-        """Set sound effects volume (0.0 to 1.0)."""
+        """Set the sound effects playback volume.
+
+        Args:
+            volume: Volume level from 0.0 (silent) to 1.0 (full volume).
+                Values outside this range are clamped.
+        """
         self.sfx_volume = max(0.0, min(1.0, volume))
 
     def cleanup(self) -> None:
-        """Clean up audio resources."""
+        """Clean up audio resources and shut down the mixer.
+
+        Should be called when the application exits to properly
+        release audio system resources.
+        """
         if self._initialized:
             pygame.mixer.quit()
             self._initialized = False

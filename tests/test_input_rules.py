@@ -10,12 +10,21 @@ class TestInputHandler:
     """Test input handler for no-buffered-input and reversal prevention."""
 
     def test_initial_direction(self) -> None:
-        """Test initial direction is RIGHT."""
+        """Test that the initial direction is RIGHT.
+
+        Verifies that a newly created InputHandler has its current_direction
+        set to Direction.RIGHT by default.
+        """
         handler = InputHandler()
         assert handler.current_direction == Direction.RIGHT
 
     def test_pending_direction_overwrites(self) -> None:
-        """Test that multiple direction presses overwrite pending direction."""
+        """Test that multiple direction presses overwrite pending direction.
+
+        Verifies that when multiple direction keys are pressed before a tick,
+        only the last pressed direction is stored as the pending direction.
+        This ensures no input buffering occurs.
+        """
         handler = InputHandler()
         
         # Press multiple directions before tick
@@ -33,7 +42,12 @@ class TestInputHandler:
         assert handler.pending_direction == Direction.LEFT
 
     def test_reversal_prevented(self) -> None:
-        """Test that 180-degree reversal is prevented."""
+        """Test that 180-degree reversal is prevented.
+
+        Verifies that attempting to reverse direction (e.g., pressing LEFT
+        while moving RIGHT) is ignored. The snake should continue in its
+        current direction.
+        """
         handler = InputHandler()
         handler.current_direction = Direction.RIGHT
         
@@ -46,7 +60,12 @@ class TestInputHandler:
         assert handler.current_direction == Direction.RIGHT
 
     def test_valid_turn_applied(self) -> None:
-        """Test that valid 90-degree turns are applied."""
+        """Test that valid 90-degree turns are applied.
+
+        Verifies that perpendicular direction changes (e.g., pressing UP
+        while moving RIGHT) are correctly applied when apply_pending_direction
+        is called.
+        """
         handler = InputHandler()
         handler.current_direction = Direction.RIGHT
         
@@ -58,7 +77,12 @@ class TestInputHandler:
         assert handler.current_direction == Direction.UP
 
     def test_direction_changed_on_tick(self) -> None:
-        """Test detection of direction change."""
+        """Test detection of direction change.
+
+        Verifies that direction_changed_on_tick correctly returns True when
+        a new direction is pending and differs from the current direction,
+        and returns False when the pending direction matches the current one.
+        """
         handler = InputHandler()
         handler.current_direction = Direction.RIGHT
         
@@ -73,7 +97,11 @@ class TestInputHandler:
         assert handler.direction_changed_on_tick() is False
 
     def test_reset(self) -> None:
-        """Test reset clears pending direction."""
+        """Test that reset clears pending direction.
+
+        Verifies that calling reset with a new direction clears any pending
+        direction and sets the current direction to the specified value.
+        """
         handler = InputHandler()
         
         import pygame

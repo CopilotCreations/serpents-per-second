@@ -22,17 +22,39 @@ from src.systems.logging_setup import get_logger
 
 
 def _ensure_dirs() -> None:
-    """Ensure save directories exist."""
+    """Ensure save directories exist.
+    
+    Creates the saves directory and any parent directories if they don't exist.
+    """
     SAVES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _clamp(value: float, min_val: float, max_val: float) -> float:
-    """Clamp a value to a range."""
+    """Clamp a value to a range.
+    
+    Args:
+        value: The value to clamp.
+        min_val: The minimum allowed value.
+        max_val: The maximum allowed value.
+        
+    Returns:
+        The clamped value within [min_val, max_val].
+    """
     return max(min_val, min(max_val, value))
 
 
 def _validate_name(name: str) -> str:
-    """Validate and sanitize a high score name."""
+    """Validate and sanitize a high score name.
+    
+    Ensures the name is exactly 3 characters and contains only valid characters
+    from NAME_CHARSET. Invalid characters are replaced with 'A'.
+    
+    Args:
+        name: The name to validate.
+        
+    Returns:
+        A sanitized 3-character uppercase name, or "AAA" if invalid.
+    """
     if not isinstance(name, str) or len(name) != 3:
         return "AAA"
     sanitized = ""
@@ -56,6 +78,11 @@ class Settings:
         self._dirty = False
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert settings to a dictionary for serialization.
+        
+        Returns:
+            A dictionary containing all settings values.
+        """
         return {
             "version": self.version,
             "scale": self.scale,
@@ -65,6 +92,14 @@ class Settings:
         }
 
     def from_dict(self, data: dict[str, Any]) -> None:
+        """Load settings from a dictionary.
+        
+        Validates and clamps values to their allowed ranges. Invalid values
+        are logged and corrected.
+        
+        Args:
+            data: A dictionary containing settings values.
+        """
         logger = get_logger()
         try:
             if "scale" in data:
@@ -92,7 +127,14 @@ class Settings:
 
 
 def load_settings() -> Settings:
-    """Load settings from file or return defaults."""
+    """Load settings from file or return defaults.
+    
+    Attempts to read settings from the settings file. If the file doesn't
+    exist or contains invalid JSON, returns default settings.
+    
+    Returns:
+        A Settings object with loaded or default values.
+    """
     logger = get_logger()
     settings = Settings()
     _ensure_dirs()
@@ -116,7 +158,14 @@ def load_settings() -> Settings:
 
 
 def save_settings(settings: Settings) -> bool:
-    """Save settings to file."""
+    """Save settings to file.
+    
+    Args:
+        settings: The Settings object to save.
+        
+    Returns:
+        True if save was successful, False otherwise.
+    """
     logger = get_logger()
     _ensure_dirs()
     
@@ -134,15 +183,35 @@ class HighScoreEntry:
     """A single high score entry."""
 
     def __init__(self, name: str, score: int, ts: str | None = None) -> None:
+        """Initialize a high score entry.
+        
+        Args:
+            name: Player name (3 characters, will be validated).
+            score: The score value (will be clamped to >= 0).
+            ts: Optional ISO 8601 timestamp. Defaults to current UTC time.
+        """
         self.name = _validate_name(name)
         self.score = max(0, int(score))
         self.ts = ts or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert entry to a dictionary for serialization.
+        
+        Returns:
+            A dictionary containing name, score, and timestamp.
+        """
         return {"name": self.name, "score": self.score, "ts": self.ts}
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> "HighScoreEntry":
+        """Create a HighScoreEntry from a dictionary.
+        
+        Args:
+            data: Dictionary containing name, score, and optionally ts.
+            
+        Returns:
+            A new HighScoreEntry instance.
+        """
         return HighScoreEntry(
             name=data.get("name", "AAA"),
             score=data.get("score", 0),
@@ -154,6 +223,7 @@ class HighScores:
     """High scores for all game modes."""
 
     def __init__(self) -> None:
+        """Initialize empty high scores for all game modes."""
         self.version = 1
         self.scores: dict[str, list[HighScoreEntry]] = {
             GameMode.CLASSIC.value: [],
@@ -163,12 +233,25 @@ class HighScores:
         }
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert all high scores to a dictionary for serialization.
+        
+        Returns:
+            A dictionary containing version and scores for all game modes.
+        """
         return {
             "version": self.version,
             **{mode: [e.to_dict() for e in entries] for mode, entries in self.scores.items()},
         }
 
     def from_dict(self, data: dict[str, Any]) -> None:
+        """Load high scores from a dictionary.
+        
+        Parses and validates scores for each game mode. Invalid entries
+        are logged and skipped.
+        
+        Args:
+            data: A dictionary containing high scores data.
+        """
         logger = get_logger()
         for mode in self.scores:
             if mode in data and isinstance(data[mode], list):
@@ -181,14 +264,34 @@ class HighScores:
                     logger.warning(f"Error parsing {mode} high scores: {e}")
 
     def qualifies(self, mode: GameMode, score: int) -> bool:
-        """Check if a score qualifies for the leaderboard."""
+        """Check if a score qualifies for the leaderboard.
+        
+        A score qualifies if the leaderboard isn't full or the score
+        exceeds the lowest existing score.
+        
+        Args:
+            mode: The game mode to check.
+            score: The score to evaluate.
+            
+        Returns:
+            True if the score qualifies for the leaderboard.
+        """
         entries = self.scores.get(mode.value, [])
         if len(entries) < MAX_HIGHSCORES:
             return True
         return score > entries[-1].score
 
     def add_score(self, mode: GameMode, name: str, score: int) -> bool:
-        """Add a score to the leaderboard if it qualifies."""
+        """Add a score to the leaderboard if it qualifies.
+        
+        Args:
+            mode: The game mode for the score.
+            name: Player name (3 characters).
+            score: The score value.
+            
+        Returns:
+            True if the score was added, False if it didn't qualify.
+        """
         if not self.qualifies(mode, score):
             return False
         
@@ -200,12 +303,27 @@ class HighScores:
         return True
 
     def get_scores(self, mode: GameMode) -> list[HighScoreEntry]:
-        """Get high scores for a specific mode."""
+        """Get high scores for a specific mode.
+        
+        Args:
+            mode: The game mode to retrieve scores for.
+            
+        Returns:
+            List of HighScoreEntry objects, sorted by score descending.
+        """
         return self.scores.get(mode.value, [])
 
 
 def load_highscores() -> HighScores:
-    """Load high scores from file or return empty structure."""
+    """Load high scores from file or return empty structure.
+    
+    Attempts to read high scores from the high scores file. If the file
+    doesn't exist, creates an empty file. If the file contains invalid
+    JSON, overwrites it with an empty structure.
+    
+    Returns:
+        A HighScores object with loaded or empty values.
+    """
     logger = get_logger()
     highscores = HighScores()
     _ensure_dirs()
@@ -230,7 +348,14 @@ def load_highscores() -> HighScores:
 
 
 def save_highscores(highscores: HighScores) -> bool:
-    """Save high scores to file."""
+    """Save high scores to file.
+    
+    Args:
+        highscores: The HighScores object to save.
+        
+    Returns:
+        True if save was successful, False otherwise.
+    """
     logger = get_logger()
     _ensure_dirs()
     

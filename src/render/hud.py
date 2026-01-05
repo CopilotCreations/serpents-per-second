@@ -15,6 +15,11 @@ class HUD:
     """Renders in-game HUD elements."""
 
     def __init__(self, font: BitmapFont) -> None:
+        """Initialize the HUD renderer.
+
+        Args:
+            font: The bitmap font used for rendering text.
+        """
         self.font = font
 
     def render(
@@ -26,7 +31,17 @@ class HUD:
         time_remaining: float | None = None,
         paused: bool = False,
     ) -> None:
-        """Render the HUD."""
+        """Render the HUD.
+
+        Args:
+            surface: The pygame surface to render the HUD onto.
+            mode: The current game mode to display.
+            score: The player's current score.
+            ticks_per_second: The current game speed in ticks per second.
+            time_remaining: Time remaining in seconds for Time Attack mode,
+                or None for other modes.
+            paused: Whether the game is currently paused.
+        """
         # Mode name (top left)
         mode_name = mode.value.replace("_", " ").upper()
         self.font.render_text(mode_name, surface, 4, 4, COLOR_UI_GOLD)
@@ -56,7 +71,13 @@ class HUD:
             self._render_pause_overlay(surface)
 
     def _render_pause_overlay(self, surface: pygame.Surface) -> None:
-        """Render pause overlay."""
+        """Render pause overlay.
+
+        Draws a semi-transparent dark overlay and centered pause text.
+
+        Args:
+            surface: The pygame surface to render the overlay onto.
+        """
         # Semi-transparent overlay
         overlay = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 128))

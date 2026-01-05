@@ -28,6 +28,11 @@ class PlayScene(Scene):
     """Main gameplay scene."""
 
     def __init__(self, app: "App") -> None:  # type: ignore[name-defined]
+        """Initialize the play scene.
+
+        Args:
+            app: The main application instance.
+        """
         super().__init__(app)
         self.mode: GameMode = GameMode.CLASSIC
         self.input_handler = InputHandler()
@@ -42,7 +47,12 @@ class PlayScene(Scene):
         self.end_reason: EndReason | None = None
 
     def start_game(self, mode: GameMode, maze_index: int = 0) -> None:
-        """Initialize a new game with the specified mode."""
+        """Initialize a new game with the specified mode.
+
+        Args:
+            mode: The game mode to play.
+            maze_index: Index of the maze layout to use for maze mode.
+        """
         self.mode = mode
         self.config = get_mode_config(mode)
         
@@ -63,9 +73,15 @@ class PlayScene(Scene):
         self.food.spawn(self.snake.segments, self.walls)
 
     def on_enter(self) -> None:
+        """Handle scene entry by starting game music."""
         self.app.audio.play_music("game")
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle pygame events for gameplay input.
+
+        Args:
+            event: The pygame event to process.
+        """
         if event.type != pygame.KEYDOWN:
             return
         
@@ -82,6 +98,11 @@ class PlayScene(Scene):
             self.input_handler.handle_key_down(event.key)
 
     def update(self, dt: float) -> None:
+        """Update game state each frame.
+
+        Args:
+            dt: Delta time in seconds since last update.
+        """
         if self.timing.paused:
             return
         
@@ -106,7 +127,11 @@ class PlayScene(Scene):
                 return
 
     def _process_tick(self) -> None:
-        """Process a single movement tick."""
+        """Process a single movement tick.
+
+        Handles direction changes, snake movement, collision detection,
+        and food consumption for one game tick.
+        """
         # Apply pending direction
         direction_changed = self.input_handler.direction_changed_on_tick()
         new_direction = self.input_handler.apply_pending_direction()
@@ -142,7 +167,11 @@ class PlayScene(Scene):
                 self._end_game(EndReason.VICTORY)
 
     def _end_game(self, reason: EndReason) -> None:
-        """Handle game over."""
+        """Handle game over and transition to results.
+
+        Args:
+            reason: The reason the game ended.
+        """
         self.end_reason = reason
         
         if reason in (EndReason.SELF_COLLISION, EndReason.WALL_COLLISION):
@@ -154,6 +183,11 @@ class PlayScene(Scene):
         self.app.show_results(self.mode, self.scoring.get_score(), reason)
 
     def render(self, surface: pygame.Surface) -> None:
+        """Render the game scene.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         surface.fill(COLOR_BG)
         
         # Render walls
@@ -180,7 +214,11 @@ class PlayScene(Scene):
         )
 
     def _render_walls(self, surface: pygame.Surface) -> None:
-        """Render wall tiles."""
+        """Render wall tiles.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         wall_sprite = self.app.sprites.get_wall_sprite()
         
         for x, y in self.walls:
@@ -191,7 +229,11 @@ class PlayScene(Scene):
                 pygame.draw.rect(surface, COLOR_WALL_GRAY, (px, py, TILE_SIZE, TILE_SIZE))
 
     def _render_food(self, surface: pygame.Surface) -> None:
-        """Render food."""
+        """Render food.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         fx, fy = self.food.position
         px, py = fx * TILE_SIZE, fy * TILE_SIZE
         
@@ -202,7 +244,11 @@ class PlayScene(Scene):
             pygame.draw.rect(surface, COLOR_FOOD_RED, (px, py, TILE_SIZE, TILE_SIZE))
 
     def _render_snake(self, surface: pygame.Surface) -> None:
-        """Render snake with appropriate sprites."""
+        """Render snake with appropriate sprites.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         segments = self.snake.segments
         directions = self.snake.get_segment_directions()
         

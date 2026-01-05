@@ -17,7 +17,11 @@ class BitmapFont:
     
     @classmethod
     def _init_char_map(cls) -> None:
-        """Initialize character mapping."""
+        """Initialize character mapping from sprite sheet positions.
+
+        Populates CHAR_MAP with character to (row, column) mappings for
+        uppercase letters A-Z, digits 0-9, and special characters.
+        """
         if cls.CHAR_MAP:
             return
         
@@ -34,13 +38,22 @@ class BitmapFont:
             cls.CHAR_MAP[char] = (2, i)
 
     def __init__(self, assets_path: Path) -> None:
+        """Initialize the bitmap font renderer.
+
+        Args:
+            assets_path: Path to the assets directory containing sprites/font.png.
+        """
         self.assets_path = assets_path
         self.sheet: pygame.Surface | None = None
         self.glyphs: dict[str, pygame.Surface] = {}
         self._init_char_map()
 
     def load(self) -> bool:
-        """Load the font sprite sheet."""
+        """Load the font sprite sheet and extract glyphs.
+
+        Returns:
+            True if the font loaded successfully, False otherwise.
+        """
         logger = get_logger()
         font_path = self.assets_path / "sprites" / "font.png"
         
@@ -54,7 +67,11 @@ class BitmapFont:
             return False
 
     def _extract_glyphs(self) -> None:
-        """Extract and scale glyphs from the sheet."""
+        """Extract and scale glyphs from the sprite sheet.
+
+        Populates self.glyphs with scaled glyph surfaces for each character
+        defined in CHAR_MAP.
+        """
         if self.sheet is None:
             return
         
@@ -79,9 +96,17 @@ class BitmapFont:
         y: int,
         color: tuple[int, int, int] | None = None,
     ) -> int:
-        """
-        Render text to a surface.
-        Returns the width of rendered text.
+        """Render text to a surface.
+
+        Args:
+            text: The text string to render (converted to uppercase).
+            surface: The pygame surface to render onto.
+            x: The x-coordinate for the left edge of the text.
+            y: The y-coordinate for the top edge of the text.
+            color: Optional RGB tuple to tint the text.
+
+        Returns:
+            The width of the rendered text in pixels.
         """
         text = text.upper()
         render_x = x
@@ -102,7 +127,14 @@ class BitmapFont:
         return render_x - x
 
     def get_text_width(self, text: str) -> int:
-        """Get the width of text in pixels."""
+        """Calculate the width of text in pixels.
+
+        Args:
+            text: The text string to measure.
+
+        Returns:
+            The width of the text in pixels.
+        """
         return len(text) * self.GLYPH_SIZE * self.RENDER_SCALE
 
     def render_centered(
@@ -112,7 +144,14 @@ class BitmapFont:
         y: int,
         color: tuple[int, int, int] | None = None,
     ) -> None:
-        """Render text centered horizontally on the surface."""
+        """Render text centered horizontally on the surface.
+
+        Args:
+            text: The text string to render (converted to uppercase).
+            surface: The pygame surface to render onto.
+            y: The y-coordinate for the top edge of the text.
+            color: Optional RGB tuple to tint the text.
+        """
         width = self.get_text_width(text)
         x = (surface.get_width() - width) // 2
         self.render_text(text, surface, x, y, color)

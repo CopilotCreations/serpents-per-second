@@ -10,6 +10,12 @@ class Food:
     """Food item with spawning and animation."""
 
     def __init__(self, rng: random.Random | None = None) -> None:
+        """Initialize a Food instance.
+
+        Args:
+            rng: Random number generator for spawning. If None, a new
+                Random instance is created.
+        """
         self.position: tuple[int, int] = (0, 0)
         self.animation_frame = 0
         self.animation_timer = 0.0
@@ -20,9 +26,14 @@ class Food:
         snake_segments: Sequence[tuple[int, int]],
         walls: set[tuple[int, int]] | None = None,
     ) -> bool:
-        """
-        Spawn food at a random valid position.
-        Returns True if spawn was successful, False if no valid positions.
+        """Spawn food at a random valid position.
+
+        Args:
+            snake_segments: Sequence of positions occupied by the snake.
+            walls: Optional set of positions occupied by walls.
+
+        Returns:
+            True if spawn was successful, False if no valid positions exist.
         """
         occupied = set(snake_segments)
         if walls:
@@ -42,7 +53,12 @@ class Food:
         return True
 
     def update_animation(self, dt: float, paused: bool = False) -> None:
-        """Update food animation frame."""
+        """Update food animation frame.
+
+        Args:
+            dt: Delta time in seconds since last update.
+            paused: If True, animation is paused and no update occurs.
+        """
         if paused:
             return
 
@@ -52,9 +68,20 @@ class Food:
             self.animation_frame = 1 - self.animation_frame
 
     def get_frame(self) -> int:
-        """Get current animation frame (0 or 1)."""
+        """Get current animation frame.
+
+        Returns:
+            The current animation frame index (0 or 1).
+        """
         return self.animation_frame
 
     def is_at(self, pos: tuple[int, int]) -> bool:
-        """Check if food is at a position."""
+        """Check if food is at a position.
+
+        Args:
+            pos: The position to check as an (x, y) tuple.
+
+        Returns:
+            True if food is at the given position, False otherwise.
+        """
         return self.position == pos

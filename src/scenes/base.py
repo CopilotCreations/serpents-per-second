@@ -13,21 +13,38 @@ class Scene(ABC):
     """Abstract base class for game scenes."""
 
     def __init__(self, app: "App") -> None:
+        """Initialize the scene with an app reference.
+
+        Args:
+            app: The main application instance.
+        """
         self.app = app
 
     @abstractmethod
     def handle_event(self, event: pygame.event.Event) -> None:
-        """Handle a pygame event."""
+        """Handle a pygame event.
+
+        Args:
+            event: The pygame event to process.
+        """
         pass
 
     @abstractmethod
     def update(self, dt: float) -> None:
-        """Update scene state."""
+        """Update scene state.
+
+        Args:
+            dt: Delta time in seconds since the last update.
+        """
         pass
 
     @abstractmethod
     def render(self, surface: pygame.Surface) -> None:
-        """Render the scene to the internal surface."""
+        """Render the scene to the internal surface.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         pass
 
     def on_enter(self) -> None:

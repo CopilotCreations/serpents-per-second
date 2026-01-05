@@ -7,7 +7,16 @@ from src.constants import LOG_FILE, APPDATA_DIR, MAX_LOG_SIZE
 
 
 def setup_logging() -> logging.Logger:
-    """Configure and return the application logger."""
+    """Configure and return the application logger.
+
+    Creates the application data directory if it doesn't exist, manages log file
+    size by truncating when it exceeds MAX_LOG_SIZE, and configures a file handler
+    with timestamp formatting. The log level can be controlled via the SPS_LOG_LEVEL
+    environment variable.
+
+    Returns:
+        logging.Logger: The configured application logger instance.
+    """
     APPDATA_DIR.mkdir(parents=True, exist_ok=True)
     
     # Check log file size and truncate if needed
@@ -41,5 +50,12 @@ def setup_logging() -> logging.Logger:
 
 
 def get_logger() -> logging.Logger:
-    """Get the application logger."""
+    """Get the application logger.
+
+    Retrieves the existing logger instance by name. This should be called after
+    setup_logging() has been invoked to ensure the logger is properly configured.
+
+    Returns:
+        logging.Logger: The application logger instance.
+    """
     return logging.getLogger("SerpentsPerSecond")

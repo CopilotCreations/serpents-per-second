@@ -17,6 +17,15 @@ class ScalingSystem:
     """Manages internal surface and integer scaling to display."""
 
     def __init__(self, initial_scale: int = DEFAULT_SCALE, fullscreen: bool = False) -> None:
+        """Initialize the scaling system.
+
+        Args:
+            initial_scale: The initial integer scale factor. Clamped between
+                MIN_SCALE and MAX_SCALE. Can be overridden by SPS_FORCE_SCALE
+                environment variable.
+            fullscreen: Whether to start in fullscreen mode. Can be overridden
+                by SPS_FORCE_WINDOWED environment variable.
+        """
         # Check for environment overrides
         force_scale = os.environ.get("SPS_FORCE_SCALE")
         force_windowed = os.environ.get("SPS_FORCE_WINDOWED")
@@ -41,7 +50,15 @@ class ScalingSystem:
         self.letterbox_rect = pygame.Rect(0, 0, INTERNAL_WIDTH, INTERNAL_HEIGHT)
         
     def init_display(self) -> pygame.Surface:
-        """Initialize or reinitialize the display."""
+        """Initialize or reinitialize the display.
+
+        Creates or recreates the pygame display surface based on current
+        scale and fullscreen settings. In fullscreen mode, calculates the
+        largest integer scale that fits and centers the game with letterboxing.
+
+        Returns:
+            The pygame display surface.
+        """
         if self.fullscreen:
             display_info = pygame.display.Info()
             display_w, display_h = display_info.current_w, display_info.current_h
@@ -69,18 +86,33 @@ class ScalingSystem:
         return self.screen
     
     def set_scale(self, scale: int) -> None:
-        """Change the display scale."""
+        """Change the display scale.
+
+        Args:
+            scale: The new integer scale factor. Will be clamped between
+                MIN_SCALE and MAX_SCALE.
+        """
         self.scale = max(MIN_SCALE, min(MAX_SCALE, scale))
         if not self.fullscreen:
             self.init_display()
     
     def set_fullscreen(self, fullscreen: bool) -> None:
-        """Toggle fullscreen mode."""
+        """Set fullscreen mode.
+
+        Args:
+            fullscreen: True to enable fullscreen mode with letterboxing,
+                False for windowed mode.
+        """
         self.fullscreen = fullscreen
         self.init_display()
     
     def render_to_screen(self) -> None:
-        """Scale internal surface to screen with letterboxing."""
+        """Scale internal surface to screen with letterboxing.
+
+        Clears the screen with black (for letterbox bars), scales the
+        internal surface using integer scaling, and blits it to the
+        display at the letterbox offset position.
+        """
         if self.screen is None:
             return
         
@@ -99,5 +131,10 @@ class ScalingSystem:
         pygame.display.flip()
     
     def get_internal_surface(self) -> pygame.Surface:
-        """Get the internal rendering surface."""
+        """Get the internal rendering surface.
+
+        Returns:
+            The internal pygame Surface at SNES resolution (INTERNAL_WIDTH x
+            INTERNAL_HEIGHT) that all game rendering should target.
+        """
         return self.internal_surface

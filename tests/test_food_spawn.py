@@ -11,7 +11,11 @@ class TestFoodSpawn:
     """Test food spawning validation."""
 
     def test_spawn_not_on_snake(self) -> None:
-        """Test that food never spawns on snake segments."""
+        """Test that food never spawns on snake segments.
+
+        Verifies that after 100 spawn attempts with a seeded RNG,
+        food position never overlaps with any snake segment.
+        """
         rng = random.Random(12345)
         food = Food(rng)
         
@@ -23,7 +27,11 @@ class TestFoodSpawn:
             assert food.position not in snake_segments
 
     def test_spawn_not_on_walls(self) -> None:
-        """Test that food never spawns on walls."""
+        """Test that food never spawns on walls.
+
+        Verifies that after 100 spawn attempts, food position
+        never overlaps with wall positions or snake segments.
+        """
         rng = random.Random(12345)
         food = Food(rng)
         
@@ -37,7 +45,11 @@ class TestFoodSpawn:
             assert food.position not in snake_segments
 
     def test_spawn_fails_when_full(self) -> None:
-        """Test spawn returns False when no valid positions."""
+        """Test spawn returns False when no valid positions.
+
+        When the entire grid is occupied by snake segments,
+        spawn should return False indicating no valid spawn location.
+        """
         food = Food()
         
         # Fill entire grid with snake
@@ -47,7 +59,12 @@ class TestFoodSpawn:
         assert result is False
 
     def test_spawn_uniform_distribution(self) -> None:
-        """Test spawn is reasonably uniform over valid cells."""
+        """Test spawn is reasonably uniform over valid cells.
+
+        Verifies that over 10,000 spawn attempts, each valid cell
+        receives a number of spawns within 50% of the expected average,
+        and that snake positions are never selected.
+        """
         rng = random.Random(54321)
         food = Food(rng)
         
@@ -80,7 +97,11 @@ class TestFoodAnimation:
     """Test food animation timing."""
 
     def test_animation_toggle(self) -> None:
-        """Test animation toggles every 0.25 seconds."""
+        """Test animation toggles every 0.25 seconds.
+
+        Verifies that the food animation frame alternates between
+        0 and 1 based on elapsed time thresholds.
+        """
         food = Food()
         
         assert food.get_frame() == 0
@@ -95,7 +116,11 @@ class TestFoodAnimation:
         assert food.get_frame() == 0
 
     def test_animation_paused(self) -> None:
-        """Test animation doesn't advance when paused."""
+        """Test animation doesn't advance when paused.
+
+        Verifies that when paused=True is passed to update_animation,
+        the animation frame remains unchanged regardless of delta time.
+        """
         food = Food()
         
         food.update_animation(1.0, paused=True)

@@ -11,12 +11,19 @@ class TestFoodScoring:
     """Test food scoring mechanics."""
 
     def test_initial_score(self) -> None:
-        """Test initial score is zero."""
+        """Test initial score is zero.
+
+        Verifies that a newly created Scoring instance starts with a score of 0.
+        """
         scoring = Scoring()
         assert scoring.get_score() == 0
 
     def test_food_score_increment(self) -> None:
-        """Test each food adds 10 points."""
+        """Test each food adds 10 points.
+
+        Verifies that calling add_food_score() increments the score by
+        SCORE_PER_FOOD (10 points) each time.
+        """
         scoring = Scoring()
         
         scoring.add_food_score()
@@ -30,7 +37,11 @@ class TestFoodScoring:
         assert scoring.get_score() == 30
 
     def test_reset_score(self) -> None:
-        """Test reset clears score."""
+        """Test reset clears score.
+
+        Verifies that calling reset() sets the score back to 0 after
+        points have been accumulated.
+        """
         scoring = Scoring()
         scoring.add_food_score()
         scoring.add_food_score()
@@ -43,7 +54,11 @@ class TestTimeAttackScoring:
     """Test Time Attack per-second scoring."""
 
     def test_time_score_increment(self) -> None:
-        """Test each second adds 1 point in Time Attack."""
+        """Test each second adds 1 point in Time Attack.
+
+        Verifies that add_time_score() increments the score by
+        TIME_ATTACK_SCORE_PER_SECOND (1 point) for Time Attack mode.
+        """
         scoring = Scoring()
         
         scoring.add_time_score()
@@ -51,7 +66,11 @@ class TestTimeAttackScoring:
         assert scoring.get_score() == 1
 
     def test_combined_scoring(self) -> None:
-        """Test food and time scoring combine correctly."""
+        """Test food and time scoring combine correctly.
+
+        Verifies that food scores and time scores accumulate together
+        correctly when both scoring methods are used.
+        """
         scoring = Scoring()
         
         scoring.add_food_score()  # +10
@@ -66,7 +85,12 @@ class TestTimeAttackSecondTracking:
     """Test per-second scoring trigger in timing system."""
 
     def test_second_scored_once_per_second(self) -> None:
-        """Test scoring triggers once per elapsed second."""
+        """Test scoring triggers once per elapsed second.
+
+        Verifies that check_second_scored() returns True only once when
+        a new second boundary is crossed, and returns False for repeated
+        checks within the same second.
+        """
         timing = TimingSystem()
         timing.reset(is_time_attack=True)
         
@@ -89,7 +113,12 @@ class TestTimeAttackSecondTracking:
         assert timing.check_second_scored() is True
 
     def test_second_scored_skips_correctly(self) -> None:
-        """Test scoring handles time jumps correctly."""
+        """Test scoring handles time jumps correctly.
+
+        Verifies that when elapsed time jumps by multiple seconds at once,
+        check_second_scored() triggers only once and updates the last scored
+        second to the current elapsed second.
+        """
         timing = TimingSystem()
         timing.reset(is_time_attack=True)
         

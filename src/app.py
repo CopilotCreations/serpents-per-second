@@ -30,6 +30,12 @@ class App:
     """Main application class."""
 
     def __init__(self) -> None:
+        """Initialize the App instance.
+
+        Sets up initial state including clock, assets path detection,
+        and creates instances of all core systems (settings, scaling,
+        audio, sprites, font) with default or placeholder values.
+        """
         self.running = False
         self.clock = pygame.time.Clock()
         
@@ -57,7 +63,14 @@ class App:
         self.maze_map_index = 0
 
     def init(self) -> bool:
-        """Initialize the application. Returns False on fatal error."""
+        """Initialize the application.
+
+        Initializes pygame, loads settings and high scores, sets up display
+        scaling, audio system, sprites, fonts, and creates all game scenes.
+
+        Returns:
+            bool: True if initialization succeeded, False on fatal error.
+        """
         logger = setup_logging()
         logger.info("Application starting")
         
@@ -108,7 +121,14 @@ class App:
         return True
 
     def _show_fatal_error(self, message: str) -> None:
-        """Show fatal error screen."""
+        """Show fatal error screen.
+
+        Displays an error message on a red background for 5 seconds.
+        Logs the error as critical. Fails silently if display is unavailable.
+
+        Args:
+            message: The error message to display.
+        """
         logger = get_logger()
         logger.critical(message)
         
@@ -130,7 +150,14 @@ class App:
             pass
 
     def run(self) -> int:
-        """Main application loop. Returns exit code."""
+        """Main application loop.
+
+        Runs the game loop handling events, updates, and rendering at the
+        target frame rate until the application is signaled to stop.
+
+        Returns:
+            int: Exit code (0 for normal exit, 1 for critical error).
+        """
         logger = get_logger()
         self.running = True
         
@@ -167,14 +194,23 @@ class App:
             self.cleanup()
 
     def cleanup(self) -> None:
-        """Clean up resources."""
+        """Clean up resources.
+
+        Releases audio resources and shuts down pygame.
+        """
         logger = get_logger()
         self.audio.cleanup()
         pygame.quit()
         logger.info("Application cleanup complete")
 
     def change_scene(self, scene_name: str) -> None:
-        """Change to a different scene."""
+        """Change to a different scene.
+
+        Exits the current scene (if any) and enters the new scene.
+
+        Args:
+            scene_name: The key of the scene to switch to.
+        """
         if self.current_scene:
             self.current_scene.on_exit()
         
@@ -183,7 +219,14 @@ class App:
             self.current_scene.on_enter()
 
     def start_game(self, mode: GameMode) -> None:
-        """Start a new game with the specified mode."""
+        """Start a new game with the specified mode.
+
+        Configures the play scene for the given game mode and transitions to it.
+        For maze mode, cycles through available maze maps.
+
+        Args:
+            mode: The game mode to start.
+        """
         play_scene = self.scenes.get("play")
         if isinstance(play_scene, PlayScene):
             maze_idx = 0
@@ -195,19 +238,37 @@ class App:
             self.change_scene("play")
 
     def show_results(self, mode: GameMode, score: int, reason: EndReason) -> None:
-        """Show the results screen."""
+        """Show the results screen.
+
+        Configures and displays the results scene with game outcome data.
+
+        Args:
+            mode: The game mode that was played.
+            score: The final score achieved.
+            reason: The reason the game ended.
+        """
         results_scene = self.scenes.get("results")
         if isinstance(results_scene, ResultsScene):
             results_scene.set_results(mode, score, reason)
             self.change_scene("results")
 
     def show_name_entry(self, mode: GameMode, score: int) -> None:
-        """Show the name entry screen."""
+        """Show the name entry screen.
+
+        Configures and displays the name entry scene for high score recording.
+
+        Args:
+            mode: The game mode that was played.
+            score: The score to record.
+        """
         name_entry_scene = self.scenes.get("name_entry")
         if isinstance(name_entry_scene, NameEntryScene):
             name_entry_scene.set_data(mode, score)
             self.change_scene("name_entry")
 
     def quit(self) -> None:
-        """Quit the application."""
+        """Quit the application.
+
+        Signals the main loop to stop running.
+        """
         self.running = False

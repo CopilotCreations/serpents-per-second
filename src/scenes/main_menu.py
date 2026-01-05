@@ -13,13 +13,24 @@ class MainMenuScene(Scene):
     MENU_ITEMS = ["PLAY", "OPTIONS", "HIGH SCORES", "QUIT"]
 
     def __init__(self, app: "App") -> None:  # type: ignore[name-defined]
+        """Initialize the main menu scene.
+
+        Args:
+            app: The application instance managing scenes and resources.
+        """
         super().__init__(app)
         self.selected_index = 0
 
     def on_enter(self) -> None:
+        """Handle scene entry by starting menu music."""
         self.app.audio.play_music("menu")
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Process input events for menu navigation.
+
+        Args:
+            event: The pygame event to process.
+        """
         if event.type != pygame.KEYDOWN:
             return
         
@@ -34,6 +45,7 @@ class MainMenuScene(Scene):
             self._select_item()
 
     def _select_item(self) -> None:
+        """Execute the action for the currently selected menu item."""
         item = self.MENU_ITEMS[self.selected_index]
         if item == "PLAY":
             self.app.change_scene("mode_select")
@@ -45,9 +57,19 @@ class MainMenuScene(Scene):
             self.app.quit()
 
     def update(self, dt: float) -> None:
+        """Update scene state each frame.
+
+        Args:
+            dt: Delta time in seconds since the last frame.
+        """
         pass
 
     def render(self, surface: pygame.Surface) -> None:
+        """Draw the main menu to the screen.
+
+        Args:
+            surface: The pygame surface to render onto.
+        """
         surface.fill(COLOR_BG)
         
         # Title

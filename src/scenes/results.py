@@ -11,21 +11,38 @@ class ResultsScene(Scene):
     """Game over / results screen."""
 
     def __init__(self, app: "App") -> None:  # type: ignore[name-defined]
+        """Initialize the results scene.
+
+        Args:
+            app: The main application instance.
+        """
         super().__init__(app)
         self.mode: GameMode = GameMode.CLASSIC
         self.score: int = 0
         self.end_reason: EndReason = EndReason.SELF_COLLISION
 
     def set_results(self, mode: GameMode, score: int, reason: EndReason) -> None:
-        """Set the results to display."""
+        """Set the results to display.
+
+        Args:
+            mode: The game mode that was played.
+            score: The final score achieved.
+            reason: The reason the game ended.
+        """
         self.mode = mode
         self.score = score
         self.end_reason = reason
 
     def on_enter(self) -> None:
+        """Handle scene entry by starting menu music."""
         self.app.audio.play_music("menu")
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle input events for navigation.
+
+        Args:
+            event: The pygame event to process.
+        """
         if event.type != pygame.KEYDOWN:
             return
         
@@ -46,9 +63,19 @@ class ResultsScene(Scene):
                 self.app.change_scene("main_menu")
 
     def update(self, dt: float) -> None:
+        """Update scene state.
+
+        Args:
+            dt: Delta time in seconds since last update.
+        """
         pass
 
     def render(self, surface: pygame.Surface) -> None:
+        """Render the results screen.
+
+        Args:
+            surface: The pygame surface to render to.
+        """
         surface.fill(COLOR_BG)
         
         # End reason title

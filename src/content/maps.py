@@ -53,15 +53,33 @@ ALL_MAPS: list[list[tuple[int, int]]] = [MAP_1, MAP_2, MAP_3, MAP_4, MAP_5]
 
 
 def get_map(index: int) -> list[tuple[int, int]]:
-    """Get a map by index (wraps around)."""
+    """Get a map by index (wraps around).
+
+    Args:
+        index: The map index. Wraps around if out of range.
+
+    Returns:
+        A list of (x, y) wall positions for the selected map.
+    """
     return ALL_MAPS[index % len(ALL_MAPS)]
 
 
 def get_map_set(index: int) -> set[tuple[int, int]]:
-    """Get a map as a set for fast lookup."""
+    """Get a map as a set for fast lookup.
+
+    Args:
+        index: The map index. Wraps around if out of range.
+
+    Returns:
+        A set of (x, y) wall positions for fast collision checks.
+    """
     return set(get_map(index))
 
 
 def get_map_count() -> int:
-    """Get the total number of maps."""
+    """Get the total number of available maps.
+
+    Returns:
+        The count of maps in ALL_MAPS.
+    """
     return len(ALL_MAPS)

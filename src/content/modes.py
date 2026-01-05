@@ -48,5 +48,12 @@ MODE_CONFIGS: dict[GameMode, ModeConfig] = {
 
 
 def get_mode_config(mode: GameMode) -> ModeConfig:
-    """Get configuration for a game mode."""
+    """Get configuration for a game mode.
+
+    Args:
+        mode: The game mode to get configuration for.
+
+    Returns:
+        The ModeConfig instance containing settings for the specified mode.
+    """
     return MODE_CONFIGS[mode]
